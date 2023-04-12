@@ -1,0 +1,60 @@
+{% extends 'base.html' %} 
+
+{% block content %}
+  <h1>DETAIL</h1>
+  <hr />
+
+  {% if article.image %}
+    <img src="{{article.image.url}}" />
+  {% endif %}
+
+  <div id="article-content">
+    <p>글 제목 : {{article.title}}</p>
+    <p>글 내용 : {{article.content}}</p>
+    <p>생성시각 : {{article.created_at}}</p>
+    <p>수정시각 : {{article.updated_at}}</p>
+
+    <hr>
+    <a href="{% url 'articles:update' article.pk %}">수정하기</a>
+    <form action="{% url 'articles:delete' article.pk %}" id="delete-form">
+      {% csrf_token %}
+      <input type="submit" value="삭제하기" id="delete-btn" />
+    </form><br>
+    <hr>
+
+    <h4>댓글</h4>
+    <form action="{% url 'articles:comments_create' article.pk %}" method='POST'>
+      {% csrf_token %}
+      {{form.as_p}}
+      <input type="submit" value='작성하기'>
+    </form>
+
+    <hr>
+    {% comment %} comments에 값이 있으면 {% endcomment %}
+    {% if comments %}
+      <p><b>{{comments| length}}개의 댓글</b></p>
+    {% endif %}
+
+    <ul>
+      {% for comment in comments %}
+      <li>
+        {{comment.content}}
+        {% comment %} for문에서 하나씩 꺼내온 comment에 있는 pk를 이용하여, comment.pk구해온다. {% endcomment %}
+        <form action="{% url 'articles:comments_delete' article.pk comment.pk%}" method = 'POST'>
+          {% csrf_token %}
+          <input type="submit" value='삭제'>
+        </form>
+      </li>
+
+      {% empty %}
+      <p>아직 댓글이 없어요 :(</p>
+
+    {% endfor %}
+    </ul>
+   
+    
+
+    <hr>
+    <a href="{% url 'articles:index' %}">목록보기</a>
+  </div>
+{% endblock content %}
